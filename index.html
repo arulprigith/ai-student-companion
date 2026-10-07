@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Student Companion</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        header {
+            background: #4f46e5;
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        header p {
+            margin: 8px 0 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 30px auto;
+        }
+
+        .welcome {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .welcome h3 {
+            margin: 0;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+        button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 7px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #3730a3;
+        }
+
+        .logout-btn {
+            background: #dc2626;
+            margin: 0;
+        }
+
+        .logout-btn:hover {
+            background: #b91c1c;
+        }
+
+        /* LOGIN */
+
+        #authScreen {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #eef2ff;
+        }
+
+        .auth-box {
+            width: 90%;
+            max-width: 420px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+            text-align: center;
+        }
+
+        .auth-box h1 {
+            color: #4f46e5;
+        }
+
+        .auth-box input,
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        .auth-box button {
+            width: 100%;
+        }
+
+        .switch-btn {
+            background: none;
+            color: #4f46e5;
+            padding: 5px;
+        }
+
+        .switch-btn:hover {
+            background: none;
+            text-decoration: underline;
+        }
+
+        /* MODAL */
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            margin: 70px auto;
+            padding: 25px;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 25px;
+            cursor: pointer;
+            color: #555;
+        }
+
+        .material-list,
+        .task-list {
+            margin-top: 15px;
+        }
+
+        .material-list div,
+        .task-item {
+            background: #f3f4f6;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 7px;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .delete-btn {
+            background: #dc2626;
+            margin: 0;
+            padding: 7px 12px;
+        }
+
+        .chat-box {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+
+        .message {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 6px;
+        }
+
+        .user-message {
+            background: #dbeafe;
+            text-align: right;
+        }
+
+        .ai-message {
+            background: #e0e7ff;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+        }
+
+        .chat-input button {
+            margin: 0;
+        }
+
+        .progress-container {
+            background: #ddd;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #4f46e5;
+            width: 0%;
+        }
+
+        .quiz-option {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: #f3f4f6;
+            color: #222;
+            margin: 10px 0;
+        }
+
+        .quiz-option:hover {
+            background: #ddd;
+        }
+
+        .reminder-box {
+            background: #fff7ed;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #fed7aa;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ================= LOGIN / SIGNUP ================= -->
+
+    <div id="authScreen">
+
+        <div class="auth-box">
+
+            <h1>🎓 AI Student Companion</h1>
+
+            <!-- LOGIN -->
+
+            <div id="loginForm">
+
+                <h2>🔐 Student Login</h2>
+
+                <input
+                    type="text"
+                    id="loginUsername"
+                    placeholder="Enter Username"
+                >
+
+                <input
+                    type="password"
+                    id="loginPassword"
+                    placeholder="Enter Password"
+                >
+
+                <button onclick="login()">
+                    Login
+                </button>
+
+                <p>
+                    Don't have an account?
+                    <button class="switch-btn" onclick="showSignup()">
+                        Create Account
+                    </button>
+                </p>
+
+            </div>
+
+
+            <!-- SIGNUP -->
+
+            <div id="signupForm" style="display:none;">
+
+                <h2>📝 Create Account</h2>
+
+                <input
+                    type="text"
+                    id="signupName"
+                    placeholder="Enter Student Name"
+                >
+
+                <input
+                    type="text"
+                    id="signupUsername"
+                    placeholder="Create Username"
+                >
+
+                <input
+                    type="password"
+                    id="signupPassword"
+                    placeholder="Create Password"
+                >
+
+                <button onclick="signup()">
+                    Create Account
+                </button>
+
+                <p>
+                    Already have an account?
+                    <button class="switch-btn" onclick="showLogin()">
+                        Login
+                    </button>
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= MAIN APP ================= -->
+
+    <div id="appContent" style="display:none;">
+
+        <header>
+
+            <h1>🎓 AI Student Companion</h1>
+
+            <p>Your Smart Study Partner</p>
+
+        </header>
+
+
+        <div class="container">
+
+            <!-- WELCOME -->
+
+            <div class="welcome">
+
+                <h3 id="welcomeUser">
+                    Welcome!
+                </h3>
+
+                <button
+                    class="logout-btn"
+                    onclick="logout()"
+                >
+                    🚪 Logout
+                </button>
+
+            </div>
+
+
+            <!-- CARDS -->
+
+            <div class="cards">
+
+                <div class="card">
+
+                    <h2>📚 Study Materials</h2>
+
+                    <p>
+                        Access your subject study materials
+                    </p>
+
+                    <button onclick="openMaterials()">
+                        View Materials
+                    </button>
+
+                </div>
+
+
+                <div class="card">
+
+                    <h2>🤖 AI Assistant</h2>
+
+                    <p>
+                        Ask questions and get study help
+                    </p>
+
+                    <button onclick="openAI()">
+                        Open AI Assistant
+                    </button>
+
+                </div>
+
+
+                <div class="card">
+
+                    <h2>📝 Quiz</h2>
+
+                    <p>
+                        Test your knowledge
+                    </p>
+
+                    <button onclick="startQuiz()">
+                        Start Quiz
+                    </button>
+
+                </div>
+
+
+                <div class="card">
+
+                    <h2>📅 Study Planner</h2>
+
+                    <p>
+                        Plan your study schedule
+                    </p>
+
+                    <button onclick="openPlanner()">
+                        Open Planner
+                    </button>
+
+                </div>
+
+
+                <div class="card">
+
+                    <h2>👤 Student Profile</h2>
+
+                    <p>
+                        Manage your student information
+                    </p>
+
+                    <button onclick="openProfile()">
+                        View Profile
+                    </button>
+
+                </div>
+
+
+                <div class="card">
+
+                    <h2>📊 Student Dashboard</h2>
+
+                    <p>
+                        View your study progress and statistics
+                    </p>
+
+                    <button onclick="openDashboard()">
+                        View Dashboard
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= MATERIALS ================= -->
+
+        <div id="materialsModal" class="modal">
+
+            <div class="modal-content">
+
+                <span class="close" onclick="closeMaterials()">
+                    &times;
+                </span>
+
+                <h2>📚 Study Materials</h2>
+
+                <button onclick="showMaterial('Python')">
+                    🐍 Python
+                </button>
+
+                <button onclick="showMaterial('Artificial Intelligence')">
+                    🤖 Artificial Intelligence
+                </button>
+
+                <button onclick="showMaterial('Machine Learning')">
+                    🧠 Machine Learning
+                </button>
+
+                <button onclick="showMaterial('Data Science')">
+                    📊 Data Science
+                </button>
+
+                <div
+                    id="materialContent"
+                    class="material-list">
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= AI ================= -->
+
+        <div id="aiModal" class="modal">
+
+            <div class="modal-content">
+
+                <span class="close" onclick="closeAI()">
+                    &times;
+                </span>
+
+                <h2>🤖 AI Student Assistant</h2>
+
+                <div
+                    id="chatBox"
+                    class="chat-box">
+                </div>
+
+                <div class="chat-input">
+
+                    <input
+                        type="text"
+                        id="userInput"
+                        placeholder="Ask your question..."
+                        onkeydown="handleEnter(event)"
+                    >
+
+                    <button onclick="sendMessage()">
+                        Send
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= QUIZ ================= -->
+
+        <div id="quizModal" class="modal">
+
+            <div class="modal-content">
+
+                <span class="close" onclick="closeQuiz()">
+                    &times;
+                </span>
+
+                <h2>📝 Student Quiz</h2>
+
+                <div id="quizContent"></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= PLANNER ================= -->
+
+        <div id="plannerModal" class="modal">
+
+            <div class="modal-content">
+
+                <span class="close" onclick="closePlanner()">
+                    &times;
+                </span>
+
+                <h2>📅 Study Planner</h2>
+
+                <input
+                    type="text"
+                    id="taskSubject"
+                    placeholder="Subject"
+                >
+
+                <input
+                    type="text"
+                    id="taskTopic"
+                    placeholder="Topic"
+                >
+
+                <input
+                    type="date"
+                    id="taskDate"
+                >
+
+                <input
+                    type="time"
+                    id="taskTime"
+                >
+
+                <button onclick="addStudyTask()">
+                    ➕ Add Study Task
+                </button>
+
+                <div
+                    id="studyTaskList"
+                    class="task-list">
+                </div>
+
+                <div class="reminder-box">
+
+                    🔔 <b>Study Reminder</b>
+
+                    <p>
+                        Keep this page open at your scheduled
+                        study time to receive a reminder.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= PROFILE ================= -->
+
+        <div id="profileModal" class="modal">
+
+            <div class="modal-content">
+
+                <span class="close" onclick="closeProfile()">
+                    &times;
+                </span>
+
+                <h2>👤 Student Profile</h2>
+
+                <input
+                    type="text"
+                    id="studentName"
+                    placeholder="Student Name"
+                >
+
+                <input
+                    type="text"
+                    id="collegeName"
+                    placeholder="College Name"
+                >
+
+                <input
+                    type="text"
+                    id="department"
+                    placeholder="Department"
+                >
+
+                <select id="studentYear">
+
+                    <option value="">
+                        Select Year
+                    </option>
+
+                    <option value="1st Year">
+                        1st Year
+                    </option>
+
+                    <option value="2nd Year">
+                        2nd Year
+                    </option>
+
+                    <option value="3rd Year">
+                        3rd Year
+                    </option>
+
+                    <option value="4th Year">
+                        4th Year
+                    </option>
+
+                </select>
+
+                <button onclick="saveProfile()">
+                    💾 Save Profile
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= DASHBOARD ================= -->
+
+        <div id="dashboardModal" class="modal">
+
+            <div class="modal-content">
+
+                <span class="close" onclick="closeDashboard()">
+                    &times;
+                </span>
+
+                <h2>📊 Student Dashboard</h2>
+
+                <div id="dashboardContent"></div>
+
+            </div>
+
+        </div>
+
+
+        <footer>
+
+            <p>
+                © 2026 AI Student Companion
+            </p>
+
+        </footer>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
